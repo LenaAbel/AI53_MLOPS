@@ -19,10 +19,75 @@ def validate_dataset(raw_root: Path) -> dict:
       4. every image can be fully decoded by Pillow (`Image.load()` or equivalent);
       5. no split or class is empty.
 
-    TODO: implement the checks and return a JSON-serializable report.
     The report must not contain timestamps because it is a DVC output.
     """
-    raise NotImplementedError("Implement the Core data-quality gate")
+    sorted_classes = sorted(EXPECTED_CLASSES)
+    splits_report = {}
+    total_images = 0
+
+    for folder, expected_count in EXPECTED_SPLITS.items():
+        split_path = raw_root / folder
+
+        # 1. train, validation and test folders exist
+        if not split_path.is_dir():
+            raise FileNotFoundError(f"Missing split directory: {split_path}")
+
+        # 2. every split contains exactly the three expected classes
+        classes = set()
+        for item in split_path.iterdir():
+            if item.is_dir():
+                classes.add(item.name)
+
+        if classes != EXPECTED_CLASSES:
+            raise RuntimeError(
+                f"Unexpected classes in {folder}: expected {sorted_classes}, found {sorted(classes)}"
+            )
+
+        # 3. image counts, 4. Pillow decode & 5. no class is empty
+        split_count = 0
+        class_counts = {}
+
+        for class_name in sorted_classes:
+            class_path = split_path / class_name
+            class_count = 0
+
+            for file_path in class_path.iterdir():
+                if file_path.is_file() and file_path.suffix.lower() in IMAGE_EXTENSIONS:
+                    # 4. Pillow can read all the pixels in each image
+                    try:
+                        with Image.open(file_path) as img:
+                            img.load()
+                    except Exception as exc:
+                        raise OSError(f"Corrupted image file: {file_path}") from exc
+
+                    class_count += 1
+
+            # 5. no class is empty
+            if class_count == 0:
+                raise RuntimeError(f"Empty class directory: {class_path}")
+
+            class_counts[class_name] = class_count
+            split_count += class_count
+
+        # 3. image counts match the exact course archives
+        if split_count != expected_count:
+            raise RuntimeError(
+                f"Image count mismatch in {folder}: expected {expected_count}, found {split_count}"
+            )
+
+        splits_report[folder] = {
+            "images": split_count,
+            "class_counts": class_counts,
+        }
+        total_images += split_count
+
+    # 6. deterministic report (no timestamps, sorted classes)
+    return {
+        "status": "PASS",
+        "classes": sorted_classes,
+        "splits": splits_report,
+        "total_images": total_images,
+    }
 
 
 def main() -> None:
