@@ -53,8 +53,17 @@ def build_run_manifest(params: dict, device: str, mlflow_run_id: str) -> dict:
         if commit_result.returncode == 0:
             git_commit = commit_result.stdout.strip()
 
-        # `git status --porcelain` prints one line per changed file
-        status_result = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
+        # `git status --porcelain` prints one line per changed file.
+        # The pipeline outputs (reports/ and dvc.lock) are excluded:
+        # DVC deletes or rewrites them during `dvc repro`, so they would
+        # always make the folder look dirty. Only code and settings count.
+        status_command = [
+            "git", "status", "--porcelain", "--",
+            ".",
+            ":(exclude)reports",
+            ":(exclude)dvc.lock",
+        ]
+        status_result = subprocess.run(status_command, capture_output=True, text=True)
         if status_result.returncode == 0:
             changed_files = status_result.stdout.strip()
             git_dirty = changed_files != ""
