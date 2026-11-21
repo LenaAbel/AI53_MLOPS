@@ -136,3 +136,10 @@ Training complete. MLflow Run ID: c89d8410bea6481880c6d6c6848ab1fc
 - **Change `train.learning_rate`**: Only TRAIN ran again. `train.learning_rate` is listed in its params and not in the params of VALIDATE or PREPARE.
 - **Lower learning rate results**: Run B reached a `val_macro_f1` of 0.6091 and a `val_accuracy` of 0.6165. Run A reached 0.6254 and 0.6391. The `val_loss` was higher for Run B (0.8927 against 0.8328). This supports the prediction. The model learned more slowly in the same 4 epochs. Training time was 130.7 s for Run B and 152.9 s for Run A. The gap is probably due to the load of the machine, since both Runs train for the same number of epochs.
 - **Git dirty flag**: The run manifests of Run A and Run B both show `"dirty": true`. Run B was started from a clean commit. Before running a stage, DVC deletes its old outputs. Some of them are tracked by Git (`reports/` with `cache: false`). `git status` then saw them as deleted files. For Run A, VALIDATE and PREPARE had also created `dvc.lock` and new reports just before TRAIN. The flag was fixed in `src/provenance.py`. It now ignores `reports/` and `dvc.lock`, so it only describes the code and the settings.
+
+## Milestone 7 - Compare three controlled runs
+
+> Return the learning rate to Run A's value (0.001). Then choose exactly one change to train.dropout, augmentation.enabled or train.batch_size. Write down what you expect to happen and why.
+
+- **Controlled change**: Run C uses the same settings as Run A, except `train.dropout`, which goes from 0.30 to 0.50. The learning rate is back to 0.001.
+- **Prediction**: Dropout turns off a random part of the neurons at each training step. A higher dropout adds more regularization. It helps against overfitting, but it also makes learning slower. Training only lasts 4 epochs, and Run A does not overfit yet (its `val_loss` is lower than its `train_loss`). We therefore expect a slightly higher `train_loss` and validation scores close to or slightly lower than Run A. Training time should stay about the same, because dropout does not change the amount of computation.
