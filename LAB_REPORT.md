@@ -83,3 +83,56 @@ training Run.
 - **Main metric**: The main validation metric is `val_macro_f1` at the last epoch. This is a three-class problem. Macro-F1 gives the same weight to each class. A model that ignores one class gets a low score, even if its accuracy stays high.
 - **Tie-break rule**: If two Runs have the same `val_macro_f1`, the Run with the higher `val_accuracy` is chosen. If they are still equal, the Run with the lower `val_loss` is chosen.
 - **Lower learning rate**: With a learning rate of 0.0003 instead of 0.001, the weights change more slowly at each step. Training only lasts 4 epochs. The model should therefore learn less in the same time. We expect a higher `val_loss` and slightly lower validation scores than Run A. Training time should stay about the same, because the number of epochs does not change.
+
+> Make a second table in your report with the same stage columns and one row per check. Include the relevant terminal lines for each check. Compare the results with your predictions and explain any differences.
+
+- **Run A**: `3567da7a5b9b4b5fa98cb9eec553a5de` (baseline, `learning_rate` = 0.001)
+- **Run B**: `c89d8410bea6481880c6d6c6848ab1fc` (`learning_rate` = 0.0003)
+
+| Check | VALIDATE | PREPARE | TRAIN | EVALUATE |
+|---|---|---|---|---|
+| Edit `src/validate_data.py` (comment only) | RERUN | REUSED | REUSED | NOT RUN |
+| Run again without changing anything | REUSED | REUSED | REUSED | NOT RUN |
+| Change `train.learning_rate` to 0.0003 | REUSED | REUSED | RERUN | NOT RUN |
+
+**Edit `src/validate_data.py` (comment only)**
+
+```
+'data/raw.dvc' didn't change, skipping
+Running stage 'validate':
+> uv run --locked python -m src.validate_data
+  "status": "PASS",
+  "total_images": 1295
+Updating lock file 'dvc.lock'
+Stage 'prepare' didn't change, skipping
+Stage 'train' didn't change, skipping
+```
+
+**Run again without changing anything**
+
+```
+'data/raw.dvc' didn't change, skipping
+Stage 'validate' didn't change, skipping
+Stage 'prepare' didn't change, skipping
+Stage 'train' didn't change, skipping
+Data and pipelines are up to date.
+```
+
+**Change `train.learning_rate` to 0.0003**
+
+```
+'data/raw.dvc' didn't change, skipping
+Stage 'validate' didn't change, skipping
+Stage 'prepare' didn't change, skipping
+Running stage 'train':
+> uv run --locked python -m src.train
+Epoch 04/4 | train_loss=0.9198 | val_loss=0.8927 | val_acc=0.6165 | val_macro_f1=0.6091
+Training complete. MLflow Run ID: c89d8410bea6481880c6d6c6848ab1fc
+```
+
+- **Comparison with the predictions**: The results match the predictions for VALIDATE, PREPARE and TRAIN. EVALUATE is marked NOT RUN instead of REUSED. `dvc repro train` only runs TRAIN and the stages before it, so EVALUATE is never checked.
+- **Edit `src/validate_data.py`**: VALIDATE ran again because its code is one of its dependencies. The new report had the same content as before. PREPARE depends on the report and not on the code, so DVC skipped it. TRAIN was also skipped because its inputs did not change.
+- **Run again without changing anything**: This check was run after the comment was added. No dependency or setting had changed since the previous run. DVC skipped every stage.
+- **Change `train.learning_rate`**: Only TRAIN ran again. `train.learning_rate` is listed in its params and not in the params of VALIDATE or PREPARE.
+- **Lower learning rate results**: Run B reached a `val_macro_f1` of 0.6091 and a `val_accuracy` of 0.6165. Run A reached 0.6254 and 0.6391. The `val_loss` was higher for Run B (0.8927 against 0.8328). This supports the prediction. The model learned more slowly in the same 4 epochs. Training time was 130.7 s for Run B and 152.9 s for Run A. The gap is probably due to the load of the machine, since both Runs train for the same number of epochs.
+- **Git dirty flag**: The run manifests of Run A and Run B both show `"dirty": true`. Run B was started from a clean commit. Before running a stage, DVC deletes its old outputs. Some of them are tracked by Git (`reports/` with `cache: false`). `git status` then saw them as deleted files. For Run A, VALIDATE and PREPARE had also created `dvc.lock` and new reports just before TRAIN. The flag was fixed in `src/provenance.py`. It now ignores `reports/` and `dvc.lock`, so it only describes the code and the settings.
