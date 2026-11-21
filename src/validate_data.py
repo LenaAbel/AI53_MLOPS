@@ -89,7 +89,7 @@ def validate_dataset(raw_root: Path) -> dict:
         "total_images": total_images,
     }
 
-
+# Comment added for the DVC recomputation check (Milestone 6.3)
 def main() -> None:
     report = validate_dataset(Path("data/raw"))
     Path("reports").mkdir(exist_ok=True)
