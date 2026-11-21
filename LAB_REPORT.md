@@ -43,3 +43,11 @@ and whether git push transfers the DVC-managed raw images.
 > Which file contains scores that DVC should track as metrics?
 
 - `reports/test_metrics.json` contains the final test scores (test_accuracy and test_macro_f1). DVC should track it as metrics with `cache: false` so that it stays in Git. `reports/train_summary.json` is also tracked as metrics because it stores the validation scores of the last epoch. This makes it possible to compare Runs with `dvc metrics show` and `dvc metrics diff`.
+
+## Milestone 5 - Record what each MlFlow Run used
+> In one sentence per tool, explain what Git, DVC and MLflow each record about a
+training Run.
+
+- **Git**: Git records the exact code, the pipeline definition (`dvc.yaml`, `dvc.lock`) and the settings in `params.yaml` used for the Run, identified by the commit SHA saved in the run manifest.
+- **DVC**: DVC records the exact version of the data and outputs used by the Run, by storing the hashes of the raw images, the prepared images and `models/model.pt` in `dvc.lock`.
+- **MLflow**: MLflow records the Run itself, with its parameters, its metrics at each epoch, the training dataset, the report artifacts and the logged `bean-cnn` model.
