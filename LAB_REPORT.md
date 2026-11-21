@@ -143,3 +143,23 @@ Training complete. MLflow Run ID: c89d8410bea6481880c6d6c6848ab1fc
 
 - **Controlled change**: Run C uses the same settings as Run A, except `train.dropout`, which goes from 0.30 to 0.50. The learning rate is back to 0.001.
 - **Prediction**: Dropout turns off a random part of the neurons at each training step. A higher dropout adds more regularization. It helps against overfitting, but it also makes learning slower. Training only lasts 4 epochs, and Run A does not overfit yet (its `val_loss` is lower than its `train_loss`). We therefore expect a slightly higher `train_loss` and validation scores close to or slightly lower than Run A. Training time should stay about the same, because dropout does not change the amount of computation.
+
+> Compare B with A and C with A. Say whether the results support each prediction. For each Run, record the controlled change, the validation accuracy, the validation macro-F1, the training time and the MLflow Run ID.
+
+| Run | Controlled change | Val. Accuracy | Val. Macro-F1 | Training time | MLflow Run ID |
+|---|---|---|---|---|---|
+| A | Baseline | 0.6391 | 0.6254 | 152.9 s | `3567da7a5b9b4b5fa98cb9eec553a5de` |
+| B | `learning_rate` 0.001 → 0.0003 | 0.6165 | 0.6091 | 130.7 s | `c89d8410bea6481880c6d6c6848ab1fc` |
+| C | `dropout` 0.30 → 0.50 | 0.6165 | 0.6068 | 76.4 s | `91885b62834f4af99e52c1f745cc0d24` |
+
+All scores come from the last epoch, because TRAIN saves the last-epoch model.
+
+- **B compared with A**: Run B has a lower macro-F1 (0.6091 against 0.6254) and a lower accuracy (0.6165 against 0.6391). Its `val_loss` is also higher (0.8927 against 0.8328). This supports the prediction. With a smaller learning rate, the model learns more slowly in the same 4 epochs.
+- **C compared with A**: Run C has a lower macro-F1 (0.6068 against 0.6254) and the same accuracy as Run B (0.6165). Its `train_loss` is higher than Run A (0.8824 against 0.8671). This supports the prediction. The stronger dropout makes learning a little slower. At epoch 3, Run C reached a macro-F1 of 0.6511. This value is not used, because the logged model is the one from the last epoch.
+- **Training time**: The training times are very different (from 76.4 s to 152.9 s), even though the three Runs do the same amount of computation. These gaps come from the load of the machine and not from the settings. Training time is therefore not a reliable way to compare these Runs.
+- **Limits**: Each Run uses a single seed and a validation set of only 133 images. One image changes the accuracy by about 0.0075. The gap between Run A and Run C is about three images. These small differences may not mean that one setting is better in general.
+
+> Justify the primary metric you chose for this three-class problem. Explain why you use the test set only after choosing a model.
+
+- **Primary metric**: The primary metric is `val_macro_f1`. It computes the F1-score of each class and then takes their average. Each class has the same weight in the final score. The three classes are almost balanced here, but a model can still be good on two classes and weak on the third one. Accuracy can hide this problem, while macro-F1 shows it. F1 also combines precision and recall, so it penalizes both false positives and false negatives.
+- **Test set**: The validation set is used to compare the Runs and to choose a model. If the test set were also used for this choice, the chosen model would be adapted to the test images. Its test score would then be too optimistic. The test set must stay unseen until the end. It is used only once, on the selected model, to give an honest estimate of its performance on new images.

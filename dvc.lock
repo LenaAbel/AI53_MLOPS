@@ -126,8 +126,8 @@ stages:
       isexec: true
     - path: src/provenance.py
       hash: md5
-      md5: ce546484190045844b444d260c875178
-      size: 4537
+      md5: 554b606dbbdaef00143210e2e7781f6b
+      size: 4917
       isexec: true
     - path: src/reproducibility.py
       hash: md5
@@ -153,28 +153,28 @@ stages:
         data.image_size: 96
         tracking.experiment: bean-image-classification
         train.batch_size: 32
-        train.dropout: 0.3
+        train.dropout: 0.5
         train.epochs: 4
-        train.learning_rate: 0.0003
+        train.learning_rate: 0.001
         train.random_state: 42
     outs:
     - path: models/model.pt
       hash: md5
-      md5: 8c1012e7f821c756ad33f77de416fa03
+      md5: 59aa5c8c612d32f4b8676323612e0721
       size: 98673
       isexec: true
     - path: reports/run_manifest.json
       hash: md5
-      md5: 9cf6e01608fd4fd4ede5b458f610aacf
+      md5: 1c45d5fe707210fbd740e61cc8b0f7ec
       size: 837
       isexec: true
     - path: reports/train_summary.json
       hash: md5
-      md5: 5565768e426f62bd9e50196a8bf95ef0
+      md5: b3778ecd919f75f36b5d5590a7c9b356
       size: 246
       isexec: true
     - path: reports/training_curves.png
       hash: md5
-      md5: 2dd9215b0548168aaf79ce0446a2dbf6
-      size: 112560
+      md5: a4fe8ccd81f8b502798b2815dc39ccb3
+      size: 101662
       isexec: true
