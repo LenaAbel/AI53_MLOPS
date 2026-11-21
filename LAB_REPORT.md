@@ -163,3 +163,12 @@ All scores come from the last epoch, because TRAIN saves the last-epoch model.
 
 - **Primary metric**: The primary metric is `val_macro_f1`. It computes the F1-score of each class and then takes their average. Each class has the same weight in the final score. The three classes are almost balanced here, but a model can still be good on two classes and weak on the third one. Accuracy can hide this problem, while macro-F1 shows it. F1 also combines precision and recall, so it penalizes both false positives and false negatives.
 - **Test set**: The validation set is used to compare the Runs and to choose a model. If the test set were also used for this choice, the chosen model would be adapted to the test images. Its test score would then be too optimistic. The test set must stay unseen until the end. It is used only once, on the selected model, to give an honest estimate of its performance on new images.
+
+## Milestone 8 - Select and test one model
+
+> Record the Run ID you chose, its score on the main metric, any other evidence you used, and one trade-off or limitation.
+
+- **Selected Run**: Run A (baseline), with the MLflow Run ID `3567da7a5b9b4b5fa98cb9eec553a5de`.
+- **Main metric**: Run A has the highest `val_macro_f1` at the last epoch (0.6254). Run B reached 0.6091 and Run C reached 0.6068. There is no tie, so the tie-break rule is not needed.
+- **Other evidence**: Run A also has the highest `val_accuracy` (0.6391) and the lowest `val_loss` (0.8328) of the three Runs. All the validation metrics point to the same Run.
+- **Trade-off and limitation**: All the Runs were trained for only 4 epochs on CPU. This kept each Run short and made the comparison easy to repeat. The cost is a weak model. Even the best Run stays around 0.63 on the main metric, so about one leaf out of three is misclassified. The selection only says which setting works best under this short training budget.
