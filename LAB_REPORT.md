@@ -51,3 +51,35 @@ training Run.
 - **Git**: Git records the exact code, the pipeline definition (`dvc.yaml`, `dvc.lock`) and the settings in `params.yaml` used for the Run, identified by the commit SHA saved in the run manifest.
 - **DVC**: DVC records the exact version of the data and outputs used by the Run, by storing the hashes of the raw images, the prepared images and `models/model.pt` in `dvc.lock`.
 - **MLflow**: MLflow records the Run itself, with its parameters, its metrics at each epoch, the training dataset, the report artifacts and the logged `bean-cnn` model.
+
+## Milestone 6 - Predict which stages need to run again
+
+> Replace each ? with RERUN if the stage should run again or REUSED if DVC can keep its outputs. In the EVALUATE column, use NEEDS UPDATE instead of RERUN if the saved test results would no longer match.
+
+| Change | VALIDATE | PREPARE | TRAIN | EVALUATE |
+|---|---|---|---|---|
+| Change `train.learning_rate` | REUSED | REUSED | RERUN | REUSED |
+| Change `data.image_size` | REUSED | RERUN | RERUN | NEEDS UPDATE |
+| Edit `src/validate_data.py`; the quality report stays the same | RERUN | REUSED | REUSED | REUSED |
+| Edit only `README.md` | REUSED | REUSED | REUSED | REUSED |
+
+> Explain your labels for at least two rows: one setting change and one file edit. For each stage in those rows, name the input that changes or explain why its inputs stay the same. Use your dvc.yaml for this explanation.
+
+- **Change `train.learning_rate`**:
+  - VALIDATE is reused. It has no params in `dvc.yaml` and its code and data do not change.
+  - PREPARE is reused. It only tracks `data.image_size`, so the learning rate is not one of its inputs.
+  - TRAIN runs again. `train.learning_rate` is listed in its params.
+  - EVALUATE is reused. It does not track `train.learning_rate`. The selected Run ID stays the same, so the saved test results still match the chosen model.
+- **Change `data.image_size`**:
+  - VALIDATE is reused. It does not track any setting from `params.yaml`.
+  - PREPARE runs again. `data.image_size` is listed in its params.
+  - TRAIN runs again. `data.image_size` is in its params, and the prepared images and manifests also change.
+  - EVALUATE needs an update. `data.image_size` and the prepared test images change. The saved test results no longer match the current data. The selected Run was also trained with the old image size, so EVALUATE would reject it until a new Run is selected.
+- **Edit only `README.md`**:
+  - All the stages are reused. `README.md` is not a dependency of any stage in `dvc.yaml`.
+
+> Before training, choose the main validation metric and how you will break a tie in Milestone 7. Write down what you expect a lower learning rate to change.
+
+- **Main metric**: The main validation metric is `val_macro_f1` at the last epoch. This is a three-class problem. Macro-F1 gives the same weight to each class. A model that ignores one class gets a low score, even if its accuracy stays high.
+- **Tie-break rule**: If two Runs have the same `val_macro_f1`, the Run with the higher `val_accuracy` is chosen. If they are still equal, the Run with the lower `val_loss` is chosen.
+- **Lower learning rate**: With a learning rate of 0.0003 instead of 0.001, the weights change more slowly at each step. Training only lasts 4 epochs. The model should therefore learn less in the same time. We expect a higher `val_loss` and slightly lower validation scores than Run A. Training time should stay about the same, because the number of epochs does not change.
