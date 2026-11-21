@@ -178,3 +178,69 @@ stages:
       md5: a4fe8ccd81f8b502798b2815dc39ccb3
       size: 101662
       isexec: true
+  evaluate:
+    cmd: uv run --locked python -m src.evaluate
+    deps:
+    - path: data/processed/manifests/train.csv
+      hash: md5
+      md5: f300ae4875159b421c84654fb31a375e
+      size: 207585
+      isexec: true
+    - path: data/processed/manifests/validation.csv
+      hash: md5
+      md5: bd1626ca1501ff245ef3b8b312a73f4f
+      size: 27014
+      isexec: true
+    - path: data/processed/test
+      hash: md5
+      md5: b8bab51f720815a35f45f286e27502c9.dir
+      size: 637766
+      nfiles: 128
+    - path: pyproject.toml
+      hash: md5
+      md5: e648e5a0e6d5deb56529b84d5a92f886
+      size: 827
+      isexec: true
+    - path: src/data.py
+      hash: md5
+      md5: 68a3090573fc5afa12eb0db23eae24cd
+      size: 2196
+      isexec: true
+    - path: src/evaluate.py
+      hash: md5
+      md5: a62299e5e82bff9db3215d1e83aab62b
+      size: 6226
+      isexec: true
+    - path: src/provenance.py
+      hash: md5
+      md5: 554b606dbbdaef00143210e2e7781f6b
+      size: 4917
+      isexec: true
+    - path: src/reproducibility.py
+      hash: md5
+      md5: 27828aa7cbc9a6023f5aa508ba015f82
+      size: 1224
+      isexec: true
+    - path: uv.lock
+      hash: md5
+      md5: afd72528b6d3d31bcbf88c92b0545f40
+      size: 373304
+      isexec: true
+    params:
+      params.yaml:
+        compute.device: auto
+        data.image_size: 96
+        evaluation.batch_size: 64
+        selection.run_id: 3567da7a5b9b4b5fa98cb9eec553a5de
+        tracking.experiment: bean-image-classification
+    outs:
+    - path: reports/test_confusion_matrix.png
+      hash: md5
+      md5: 3e3d0c1f786d6b7af43f380068fdfb5c
+      size: 96191
+      isexec: true
+    - path: reports/test_metrics.json
+      hash: md5
+      md5: 296a89917eb70c3701a0219d06501deb
+      size: 224
+      isexec: true

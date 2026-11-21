@@ -172,3 +172,15 @@ All scores come from the last epoch, because TRAIN saves the last-epoch model.
 - **Main metric**: Run A has the highest `val_macro_f1` at the last epoch (0.6254). Run B reached 0.6091 and Run C reached 0.6068. There is no tie, so the tie-break rule is not needed.
 - **Other evidence**: Run A also has the highest `val_accuracy` (0.6391) and the lowest `val_loss` (0.8328) of the three Runs. All the validation metrics point to the same Run.
 - **Trade-off and limitation**: All the Runs were trained for only 4 epochs on CPU. This kept each Run short and made the comparison easy to repeat. The cost is a weak model. Even the best Run stays around 0.63 on the main metric, so about one leaf out of three is misclassified. The selection only says which setting works best under this short training budget.
+
+> Add the final test results and Run ID to LAB_REPORT.md.
+
+- **Final test**: The test was run once with `dvc repro evaluate`, on Run `3567da7a5b9b4b5fa98cb9eec553a5de`. `reports/test_metrics.json` lists this same Run ID. EVALUATE accepted the Run, so its `training_data_identity` matches the current prepared data.
+
+| Metric | Validation (Run A) | Test (Run A) |
+|---|---|---|
+| Accuracy | 0.6391 | 0.6484 |
+| Macro-F1 | 0.6254 | 0.6445 |
+
+- **Comparison with validation**: The test scores are close to the validation scores, and even slightly higher. The validation score was therefore not too optimistic. The small gap is expected with only 128 test images.
+- **Confusion matrix**: The model recognizes healthy leaves best, with a recall of 0.81 (34 out of 42). The recall is 0.60 for bean rust (26 out of 43) and 0.53 for angular leaf spot (23 out of 43). The most frequent error is a diseased leaf predicted as healthy. This happens for 20 of the 86 diseased leaves. In practice, this is the most costly error, because a sick plant would not be treated.
