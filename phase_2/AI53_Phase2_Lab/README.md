@@ -12,7 +12,7 @@ Open the extracted project folder in VS Code or another editor, then follow the 
 | `.github/ci-template.yml`, `Dockerfile` | Workflow starter and container build for staging |
 | `tools/smoke.py` | Quick check of the running API and model version |
 | `app/monitor.py`, `data/` | Evidently comparison and image batches |
-| `docs/HINTS.md`, `LAB_REPORT.md` | Implementation hints and evidence template |
+| `docs/HINTS.md`, `LAB_REPORT_PHASE_2.md` | Implementation hints and evidence template |
 
 Once the server is running, open its base URL to try a prediction. Choose a supplied JPG and select **Send prediction request**. The API also accepts PNG. The page previews the photo and displays the JSON from `POST /predict`. Open **API docs** to see the route details.
 

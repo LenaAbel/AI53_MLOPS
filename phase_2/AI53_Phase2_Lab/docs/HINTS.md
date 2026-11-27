@@ -98,7 +98,7 @@ If the first push still fails, stay on `ci-checks`. Run both commands under **Re
 
 If your repository is missing from Render, open [Render on GitHub](https://github.com/apps/render/installations/new). Select your GitHub account, grant Render access to the lab repository and save. Return to the Render service setup and refresh the repository list. See [Render's guide to GitHub permissions](https://render.com/docs/git-provider#fixing-github-app-permissions).
 
-If the local SHA differs from Checkpoint 3, check that you are on the recorded branch. Changes to `LAB_REPORT.md` are expected. Review any other changed files before starting the server. If you want to keep changes to the project files, commit them first.
+If the local SHA differs from Checkpoint 3, check that you are on the recorded branch. Changes to `LAB_REPORT_PHASE_2.md` are expected. Review any other changed files before starting the server. If you want to keep changes to the project files, commit them first.
 
 If you stage a new commit, run the API test command from 3.1 again. Push the new commit if your branch is already on GitHub. Then start at **Record your branch and commit** in 3.2. Update Checkpoint 3 with the new SHA and its matching CI evidence. Use `UNAVAILABLE` for any missing CI evidence.
 
@@ -180,4 +180,4 @@ If you could not push your final commit to GitHub, run this from the project fol
 git archive --format=zip --output=../lab2-final.zip HEAD
 ```
 
-The command creates `lab2-final.zip` next to the project folder. It contains the files saved in your final commit. Share it with your repository URL and completed `LAB_REPORT.md`. Include the pull request URL if it is still open. Push the branch when GitHub access returns.
+The command creates `lab2-final.zip` next to the project folder. It contains the files saved in your final commit. Share it with your repository URL and completed `LAB_REPORT_PHASE_2.md`. Include the pull request URL if it is still open. Push the branch when GitHub access returns.

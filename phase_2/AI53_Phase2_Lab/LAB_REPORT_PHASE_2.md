@@ -42,37 +42,45 @@ MLOps
 
 ### Checkpoint 3 · Evidence
 
-- Local branch:
-- Local commit SHA:
-- Local API test count:
-- Actions run source (`main`, `PULL REQUEST` or `UNAVAILABLE`):
-- Actions run URL:
-- `tests` job status:
-- `docker-build` job status:
-- Container smoke result or first failed CI step:
+- Local branch: `main`
+- Local commit SHA: `005f1efc9c78fd1b7bda04907bf621b4dca9871a`
+- Local API test count: 7 passed
+- Actions run source (`main`, `PULL REQUEST` or `UNAVAILABLE`): `main`
+- Actions run URL: https://github.com/LenaAbel/AI53_MLOPS/actions/runs/46017239680
+- `tests` job status: `PASS`
+- `docker-build` job status: `PASS`
+- Container smoke result or first failed CI step: `PASS` (the step "Check the running container" succeeded)
 
 For the two job statuses, use `PASS`, `FAIL`, `PENDING`, `SKIPPED`, `CANCELLED` or `UNAVAILABLE`. Use `SKIPPED` when Actions shows that a job was skipped. Use `UNAVAILABLE` for missing CI evidence.
 
-### Question 3 · Explanation
+### Question 3 : What does needs: tests enforce? Why do you check the run on main after the pull request is merged?
 
-Answer:
+- `needs: tests` makes the `docker-build` job wait for the `tests` job. The image is only built when the tests pass. If a test fails, `docker-build` is skipped. No image is built or started from code that is known to be broken.
+- The pull request run tests a trial merge of `ci-checks` into `main`, made at that moment. The commit that really ends up on `main` after the merge can be different. `main` may also have changed in the meantime. The run on `main` tests the exact SHA that will be released. This is the SHA used for staging in Milestone 4, so its CI evidence must belong to that exact commit.
 
 ## Milestone 4 · Verify a staging release
 
 ### Checkpoint 4 · Evidence
 
-- Mode (`RENDER` or `LOCAL`):
-- Target URL:
-- Tested commit SHA:
-- Expected model version from Checkpoint 1:
-- Observed model version from `/ready` (`UNAVAILABLE` if it returned none):
-- Smoke check result (`PASS` or `FAIL`):
-- First error, if any:
-- Earlier Render attempt, if switching to local (URL if available and reason for switching):
+- Mode (`RENDER` or `LOCAL`): `RENDER`
+- Target URL: https://ai53-leaf-lena-abel.onrender.com/
+- Tested commit SHA: `005f1efc9c78fd1b7bda04907bf621b4dca9871a` (shown as `005f1ef` in Render Deploys)
+- Expected model version from Checkpoint 1: `phase1-reference-v1`
+- Observed model version from `/ready` (`UNAVAILABLE` if it returned none): `phase1-reference-v1`
+- Smoke check result (`PASS` or `FAIL`): `PASS`
+- First error, if any: None
+- Earlier Render attempt, if switching to local (URL if available and reason for switching): Not applicable, Render was used directly. The Render root directory was set to `phase_2/AI53_Phase2_Lab`, because Phase 2 is a sub-folder of the repository.
 
-### Question 4 · Explanation
+```
+PASS GET /ready (model_version=phase1-reference-v1)
+PASS GET /health
+PASS POST /predict (label=angular_leaf_spot, model_version=phase1-reference-v1)
+```
 
-Answer:
+### Question 4 : Suppose /health returns 200 and /predict reports an unexpected model version. Would you approve this deployment? What would you check first?
+
+- No, this deployment should not be approved. `/health` only shows that the server process answers. It says nothing about the model. An unexpected version means the API serves a model that was not checked. Its predictions cannot be trusted or traced back to the expected model.
+- First, I would check which commit is really deployed. In Render, the deployed SHA must match the SHA from Checkpoint 3. A different commit may contain another model file. Then I would check the model inside that commit. The version comes from the metadata of `model/bean-cnn.onnx`, so the file itself may have been replaced. I would compare it with `model/README.md` and with the `/ready` response.
 
 ## Milestone 5 · Compare input distributions
 
