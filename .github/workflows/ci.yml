@@ -1,11 +1,28 @@
 name: Leaf API CI
 
-# TODO 2a - Use pull requests into main and pushes to main.
+# TODO 2a - Pull requests into main and pushes to main.
+# The repository also holds Phase 1, so the workflow only runs
+# when the Phase 2 project or this workflow file changes.
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "phase_2/AI53_Phase2_Lab/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "phase_2/AI53_Phase2_Lab/**"
+      - ".github/workflows/ci.yml"
 
 permissions:
   contents: read
+
+# The Phase 2 project is not at the root of the repository:
+# every `run` step starts in its folder.
+defaults:
+  run:
+    working-directory: phase_2/AI53_Phase2_Lab
 
 jobs:
   tests:
@@ -21,8 +38,8 @@ jobs:
       - name: Install the locked environment
         run: uv sync --locked
       - name: Run API tests
-        # TODO 2b - Replace the placeholder with the API test command.
-        run: exit 1
+        # TODO 2b - API test command from Milestone 2.
+        run: uv run --locked pytest -q tests/test_api.py
 
   docker-build:
     needs: tests
