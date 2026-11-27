@@ -1,22 +1,12 @@
-.venv/
-__pycache__/
-*.py[cod]
-.pytest_cache/
+# Course material supplied by the teacher (not part of the project code)
+/*.pdf
+/START_HERE.md
+/MANIFEST.sha256
+/dataset-acquisition/
+
+# Editor settings
 .idea/
-.vscode/*
-!.vscode/extensions.json
-.DS_Store
-.dataset-cache/
-/dataset-archives/
-mlflow.db
-mlartifacts/
-mlruns/
+.vscode/
 
-# DVC-managed large/generated content
-data/raw/
-data/processed/
-models/*.pt
-
-# SQLite sidecars and local logs
-mlflow.db-*
-*.log
+# DVC remote storage for Phase 1: large data, sent with `dvc push`, never with Git
+/phase_1/ai53-phase1-dvc-storage/
