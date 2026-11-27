@@ -82,5 +82,10 @@ def classify(request: Request, file: Annotated[UploadFile, File()]) -> Predictio
     model = ready_model(request)
     image = decode_image(file)
 
-    # TODO 1
-    raise HTTPException(status_code=501, detail="Complete TODO 1 first.")
+    label, confidence = predict(model, image)
+
+    return Prediction(
+        label=label,
+        confidence=confidence,
+        model_version=model.version,
+    )
